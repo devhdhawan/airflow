@@ -1,40 +1,19 @@
+name: Astro Deploy code
 
-trigger:
-  branches:
-    include:
+on:
+  push:
+    branches:
       - main
 
-pool:
-  vmImage: 'ubuntu-latest'
+env:
+  ## Sets Deployment API credentials as environment variables
+  ASTRO_API_TOKEN: ${{ secrets.ASTRO_API_TOKEN }}
 
-steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '3.x'
-      addToPath: true
-
-  - script: |
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-    displayName: 'Install dependencies'
-
-  - script: |
-      curl -sSL install.astronomer.io | sudo bash
-      cd $(Build.SourcesDirectory)
-      files=$(git diff --name-only $(git rev-parse HEAD~1) -- .)
-      dags_only=1
-      echo "DEPLOYMENT ID $DEPLOYMENT_ID"
-      for file in $files; do
-        if [[ $file != "$DAG_FOLDER"* ]]; then
-          echo "$file is not a dag, triggering a full image build"
-          dags_only=0
-          break
-        fi
-      done
-      if [ $dags_only == 1 ]; then
-        astro deploy --dags $DEPLOYMENT_ID
-      fi
-      if [ $dags_only == 0 ]; then
-        astro deploy $DEPLOYMENT_ID
-      fi
-    displayName: 'Deploy to Astronomer'
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to Astro
+      uses: astronomer/deploy-action@v0.4
+      with:
+        deployment-id: cm973ioq11hsm01maz6yyll35
