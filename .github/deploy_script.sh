@@ -1,7 +1,7 @@
 
-pip install -r requirements.txt
+# pip install -r requirements.txt
 # Install the latest version of Astro CLI
-curl -sSL install.astronomer.io | sudo bash -s
+curl -sSL install.astronomer.io | sudo bash 
 # Determine if only DAG files have changes
 files=$(git diff --name-only $(git rev-parse HEAD~1) -- .)
 dags_only=1
