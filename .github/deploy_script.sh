@@ -1,11 +1,14 @@
 
+pip install -r requirements.txt
 # Install the latest version of Astro CLI
 curl -sSL install.astronomer.io | sudo bash -s
 # Determine if only DAG files have changes
 files=$(git diff --name-only $(git rev-parse HEAD~1) -- .)
 dags_only=1
 echo "DEPLOYMENT ID $DEPLOYMENT_ID"
+
 for file in $files; do
+
   if [[ $file != "$DAG_FOLDER"* ]]; then
     echo "$file is not a dag, triggering a full image build"
     dags_only=0
