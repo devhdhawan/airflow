@@ -16,5 +16,6 @@ jobs:
     - name: Deploy to Astro
       uses: astronomer/deploy-action@v0.4
       with:
+        action: create-deployment-perview
         deployment-id: cm973jsjf1hec01mu1ojv79mo
         
