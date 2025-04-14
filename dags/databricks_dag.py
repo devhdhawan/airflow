@@ -25,7 +25,7 @@ with DAG(
 
     # Define the task to trigger the Databricks job
     run_databricks_job = DatabricksRunNowOperator(
-        task_id='run_databricks_job_3',
+        task_id='run_databricks_job_4',
         databricks_conn_id='dbr_ws',
         job_id=737065150116241,
     )
