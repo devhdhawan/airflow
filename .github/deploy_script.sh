@@ -9,7 +9,7 @@ echo "DEPLOYMENT ID $DEPLOYMENT_ID"
 
 for file in $files; do
 
-  if [[ $file != "$DAG_FOLDER"* ]]; then
+  if [[ $file != "dags/"* ]]; then
     echo "$file is not a dag, triggering a full image build"
     dags_only=0
     break
