@@ -1,0 +1,62 @@
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - "**/*.csv"
+      - "*.csv"
+
+
+pool:
+  vmImage: ubuntu-latest
+
+
+
+stages:
+- stage: validate_csv
+  variables:
+  - group: kvars_auth
+  jobs: 
+  - job: validate_kv_entries
+
+    steps:
+    - checkout: self
+      fetchDepth: 0 
+      fetchTags: false
+      persistCredentials: true
+
+    - task: UsePythonVersion@0
+      displayName: 'Use Python 3.9'
+      inputs:
+        versionSpec: 3.9
+        disableDownloadFromRegistry: true
+
+    - task: Bash@3
+      displayName: 'Create and Save Changed Files log'
+      inputs:
+        targetType: 'inline'
+        script: |
+
+          echo "Base ref: $(System.PullRequest.TargetBranch)"
+          echo "Head ref: $(System.PullRequest.SourceBranch)"
+
+         
+          git diff --name-status remotes/origin/$(System.PullRequest.TargetBranch)..remotes/origin/$(System.PullRequest.SourceBranch) > $(Build.ArtifactStagingDirectory)/change_log.csv
+          sed 's/\([^\t]*\)\t\([^\t]*\)\t\([^\t]*\)/\1\t\3/g' -i $(Build.ArtifactStagingDirectory)/change_log.csv
+        
+          cat $(Build.ArtifactStagingDirectory)/change_log.csv
+          echo "list of changed files saved to $(Build.ArtifactStagingDirectory)/change_log.csv"
+
+          pwd
+          ls
+          
+    # - task: PythonScript@0
+    #   displayName: 'Validate CSV'
+    #   inputs:
+    #     scriptSource: 'filePath'
+    #     scriptPath: './.github/workflows/param_validator.py'
+    #   env:
+    #     AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+    #     AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+    #     AZURE_TENANT_ID: $(AZURE_TENANT_ID)
