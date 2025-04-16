@@ -4,11 +4,11 @@
 curl -sSL install.astronomer.io | sudo bash -s
 # Determine if only DAG files have changes
 
-cd $RELEASE_PRIMARYARTIFACTSOURCEALIAS
-echo "cd into $RELEASE_PRIMARYARTIFACTSOURCEALIAS"
+# cd $RELEASE_PRIMARYARTIFACTSOURCEALIAS
+# echo "cd into $RELEASE_PRIMARYARTIFACTSOURCEALIAS"
 
-git checkout ${RELEASE_ARTIFACTS__GITREPO__SOURCEVERSION:0:7}
-echo "checkout commit ${RELEASE_ARTIFACTS__GITREPO__SOURCEVERSION:0:7}"
+# git checkout ${RELEASE_ARTIFACTS__GITREPO__SOURCEVERSION:0:7}
+# echo "checkout commit ${RELEASE_ARTIFACTS__GITREPO__SOURCEVERSION:0:7}"
 
 files=$(git diff --name-only $(git rev-parse HEAD~1) -- .)
 dags_only=1
