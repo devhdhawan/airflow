@@ -1,0 +1,51 @@
+name: CSV Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**/*.csv"
+      - "*.csv"
+
+jobs:
+  validate_csv:
+    runs-on: ubuntu-latest # Using self-hosted runners and specifying the pool
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      VAR_PREFIX: "airflow-variables"
+      BUILD_ARTIFACTSTAGINGDIRECTORY: ${{ github.workspace }}
+      SYSTEM_PULLREQUEST_TARGETBRANCH: ${{ github.event.pull_request.base.ref }}
+      SYSTEM_PULLREQUEST_SOURCEBRANCH: ${{ github.event.pull_request.head.ref }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Create and Save Changed Files log
+        run: |
+          echo "Base ref: ${{ env.SYSTEM_PULLREQUEST_TARGETBRANCH }}"
+          echo "Head ref: ${{ env.SYSTEM_PULLREQUEST_SOURCEBRANCH }}"
+          
+          git diff --name-status origin/${{ env.SYSTEM_PULLREQUEST_TARGETBRANCH }}..origin/${{ env.SYSTEM_PULLREQUEST_SOURCEBRANCH }} > ${{ env.BUILD_ARTIFACTSTAGINGDIRECTORY }}/change_log.csv
+          
+          sed 's/\([^\\t]*\)\\t\([^\\t]*\)\\t\([^\\t]*\)/\\1\\t\\3/g' -i ${{ env.BUILD_ARTIFACTSTAGINGDIRECTORY }}/change_log.csv
+          
+          cat ${{ env.BUILD_ARTIFACTSTAGINGDIRECTORY }}/change_log.csv
+          echo "List of changed files saved to ${{ env.BUILD_ARTIFACTSTAGINGDIRECTORY }}/change_log.csv"
+          
+          pwd
+          ls
+        
+      - name: Run CSV Validator Python Script
+        run: python ./.github/workflows/param_validator.py
